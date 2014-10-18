@@ -18,3 +18,4 @@ function createMovie(name, description, timetable, options) {
     raiting: options.raiting || 0;
   }
 }
+
