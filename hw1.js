@@ -16,6 +16,11 @@ function createPosition(x, y) {
     };
 }
 
+function distance(position1, position2) {
+    'use strict';
+    return Math.sqrt(Math.pow(position1.x - position2.x, 2) + Math.pow(position1.y - position2.y, 2));
+}
+
 function createFilm(name, rating, options) {
     'use strict';
     options = options || {};
@@ -64,25 +69,26 @@ var sessions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (x) {
 
 var manager = {};
 manager.findSessionByFilmName = function (filmName) {
-    return sessions.filter(function(candidate) {
-        return candidate.film.name == filmName;
+    'use strict';
+    return sessions.filter(function (candidate) {
+        return candidate.film.name === filmName;
     });
-}
-
-function distance(position1, position2) {
-    return Math.sqrt(Math.pow(position1.x - position2.x, 2) + Math.pow(position1.y - position2.y, 2));
-}
+};
 
 manager.sortByUserPosition = function (userPosition, film) {
+    'use strict';
     var sessions = manager.findSessionByFilmName(film);
-    sessions.sort(function(a, b) {
-        var dist1 = distance(userPosition, a.cinema.position);
-        var dist2 = distance(userPosition, b.cinema.position);
-        if (dist1 < dist2)
+    sessions.sort(function (a, b) {
+        var
+            dist1 = distance(userPosition, a.cinema.position),
+            dist2 = distance(userPosition, b.cinema.position);
+        if (dist1 < dist2) {
             return -1;
-        if (dist1 > dist2)
+        }
+        if (dist1 > dist2) {
             return 1;
+        }
         return 0;
-    })
+    });
     return sessions;
-}
+};
