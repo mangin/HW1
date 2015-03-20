@@ -22,7 +22,7 @@ function getTop(count) {
   var that = copy(this);
   that.from = 0;
   that.to = count;
-  return that
+  return that;
 }
 
 function getRange()

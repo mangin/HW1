@@ -17,3 +17,5 @@ Coords.prototype.distSqr = function(that) {
 exports.create = function(x, y) {
   return new Coords(x, y);
 };
+
+exports.Coords = Coords;
