@@ -1,0 +1,21 @@
+{
+  "name": "kino",
+  "version": "1.0.0",
+  "description": "Kino.Bistro.Ya.Skazal",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "a10nik",
+  "license": "ISC",
+  "devDependencies": {
+    "karma-mocha": "^0.1.10",
+    "mocha": "^2.2.1"
+  },
+  "dependencies": {
+    "express": "^4.12.2",
+    "immutable": "^3.6.4",
+    "lodash": "^3.5.0",
+    "q": "^1.2.0"
+  }
+}
