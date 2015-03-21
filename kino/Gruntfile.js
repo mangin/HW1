@@ -1,5 +1,6 @@
-/*jslint node: true, vars: true, white: true, nomen: true*/
-module.exports = function(grunt) {
+'use strict';
+
+module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-jslint');
     // Project configuration.
@@ -18,10 +19,10 @@ module.exports = function(grunt) {
                 src: [
                     '**/*.js',
                     '!public/**/*.js',
-                    '!Gruntfile.js',
                     '!node_modules/**/*.js'
                 ],
                 directives: {
+                    nomen: true,
                     node: true
                 },
                 options: {
@@ -36,6 +37,7 @@ module.exports = function(grunt) {
                     '!public/bundle.generated.js'
                 ],
                 directives: {
+                    nomen: true,
                     browser: true,
                     node: true
                 },

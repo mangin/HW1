@@ -1,4 +1,3 @@
-/*jslint node: true, vars: true, white: true, nomen: true*/
 module.exports = function (config) {
     'use strict';
     config.set({

@@ -4,6 +4,7 @@
   "description": "Kino.Bistro.Ya.Skazal",
   "main": "index.js",
   "scripts": {
+    "start": "index.js",
     "test": "mocha",
     "build": "grunt",
     "grunt": "grunt",
