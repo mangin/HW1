@@ -84,7 +84,7 @@ describe('query', function() {
         id: 'cinema4',
         coords: new Coords(5, 10),
         timeTable: []
-      },
+      }
     ];
   });
 
@@ -109,9 +109,8 @@ describe('query', function() {
       .orderBySoonest(1, new Date(2000, 1, 3))
       .toArray()
       .map(function(c) { return c.id; })
-      .slice(0, 2)
       .should
-      .eql(['cinema3', 'cinema1']);
+      .eql(['cinema3', 'cinema1', 'cinema4', 'cinema2']);
   });
 
 });

@@ -61,35 +61,36 @@ function cloneParams(oldParams, overrides) {
 }
 
 function CinemaQuery(queryParams) {
-  var params = cloneParams({
+  this._params = cloneParams({
     orderers: [],
     collection: []
   }, queryParams);
 
-  function clone(overrides) {
-    return new CinemaQuery(cloneParams(params, overrides));
-  }
-
-  this.orderByNearness = function(pos) {
-    var ord = Object.create(nearnessOrderer);
-    ord.coords = pos;
-    return clone({ orderers: params.orderers.concat([ord]) });
-  };
-
-  this.orderBySoonest = function(filmId, date) {
-    var ord = Object.create(soonestFilmDateOrderer);
-    ord.date = date;
-    ord.filmId = filmId;
-    return clone({ orderers: params.orderers.concat([ord]) });
-  };
-
-  this.toArray = function() {
-    var res = params.collection.map(function(x) { return x; });
-    if (params.orderers.length > 0) {
-      res.sort(getComparator(params.orderers));
-    }
-    return res;
-  };
 }
+
+function clone(self, overrides) {
+  return new CinemaQuery(cloneParams(self._params, overrides));
+}
+
+CinemaQuery.prototype.orderByNearness = function(pos) {
+  var ord = Object.create(nearnessOrderer);
+  ord.coords = pos;
+  return clone(this, { orderers: this._params.orderers.concat([ord]) });
+};
+
+CinemaQuery.prototype.orderBySoonest = function(filmId, date) {
+  var ord = Object.create(soonestFilmDateOrderer);
+  ord.date = date;
+  ord.filmId = filmId;
+  return clone(this, { orderers: this._params.orderers.concat([ord]) });
+};
+
+CinemaQuery.prototype.toArray = function() {
+  var res = this._params.collection.map(function(x) { return x; });
+  if (this._params.orderers.length > 0) {
+    res.sort(getComparator(this._params.orderers));
+  }
+  return res;
+};
 
 exports.CinemaQuery = CinemaQuery;

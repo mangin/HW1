@@ -39,7 +39,7 @@ if (config.public) {
   app.listen(config.port, config.host);
 }
 
-router.setup(app);
+app.router.setup(app);
 
 console.log("Express server listening on port %d in %s mode",
   config.port, app.settings.env);
