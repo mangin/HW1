@@ -9,7 +9,7 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'public/bundle.generated.js': ['public/**/*.js']
+                    'public/build/bundle.js': ['public/src/**/*.js']
                 }
             }
         },
@@ -33,8 +33,7 @@ module.exports = function (grunt) {
             // lint your project's client code
             client: {
                 src: [
-                    'public/**/*.js',
-                    '!public/bundle.generated.js'
+                    'public/src/**/*.js'
                 ],
                 directives: {
                     nomen: true,

@@ -65,7 +65,6 @@ function Query(queryParams) {
         orderers: [],
         collection: []
     }, queryParams);
-
 }
 
 function clone(self, overrides) {
