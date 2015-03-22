@@ -1,46 +1,13 @@
 'use strict';
 
-var maxDate = new Date(-8640000000000000);
-
-function getSoonestFilmTime(cinema, filmId, date) {
-    var soonestFilmScheduleItem = cinema.timeTable.reduce(function (prevBest, item) {
-        if (item.filmId !== filmId || item.date < date) {
-            return prevBest;
-        }
-        if (!prevBest) {
-            return item;
-        }
-        return item.date < prevBest.date ? item : prevBest;
-    }, null);
-    return soonestFilmScheduleItem ? soonestFilmScheduleItem.date : maxDate;
-}
-
-var nearnessOrderer = {
-        coords: null,
-        orderBy: function (cinema) {
-            return this.coords.distSqr(cinema.coords);
-        }
-    },
-    soonestFilmDateOrderer = {
-        date: null,
-        filmId: null,
-        orderBy: function (cinema) {
-            return getSoonestFilmTime(cinema, this.filmId, this.date);
-        }
-    };
-
 function compare(aItem, bItem) {
-    if (aItem < bItem) {
-        return -1;
-    }
-    if (aItem > bItem) {
-        return 1;
-    }
+    if (aItem < bItem) { return -1; }
+    if (aItem > bItem) { return 1; }
     return 0;
 }
 
 function compareBy(a, b, orderers, i) {
-    var cmpRes = compare(orderers[i].orderBy(a), orderers[i].orderBy(b));
+    var cmpRes = compare(orderers[i](a), orderers[i](b));
     return i === orderers.length - 1 || cmpRes !== 0
         ? cmpRes
         : compareBy(a, b, orderers, i + 1);
@@ -52,44 +19,94 @@ function getComparator(orderers) {
     };
 }
 
-function cloneParams(oldParams, overrides) {
-    var newParams = {};
-    Object.keys(oldParams).forEach(function (key) {
-        newParams[key] = overrides[key] === undefined ? oldParams[key] : overrides[key];
+function filter(array, filters) {
+    return array.filter(function (item) {
+        return filters.every(function (filter) { return filter(item); });
     });
-    return newParams;
 }
 
-function Query(queryParams) {
-    this._params = cloneParams({
-        orderers: [],
-        collection: []
-    }, queryParams);
+function BasicQuery(arr) {
+    this.arr = arr;
 }
 
-function clone(self, overrides) {
-    return new Query(cloneParams(self._params, overrides));
-}
-
-Query.prototype.orderByNearness = function (pos) {
-    var ord = Object.create(nearnessOrderer);
-    ord.coords = pos;
-    return clone(this, {orderers: this._params.orderers.concat([ord])});
-};
-
-Query.prototype.orderBySoonest = function (filmId, date) {
-    var ord = Object.create(soonestFilmDateOrderer);
-    ord.date = date;
-    ord.filmId = filmId;
-    return clone(this, {orderers: this._params.orderers.concat([ord])});
-};
-
-Query.prototype.toArray = function () {
-    var res = this._params.collection.map(function (x) { return x; });
-    if (this._params.orderers.length > 0) {
-        res.sort(getComparator(this._params.orderers));
+function OrdFilterQuery(filters, orderers, parent) {
+    this.filters = filters;
+    this.orderers = orderers;
+    this.parent = parent;
+    if (!this.filters.length && !this.orderers.length) {
+        throw "Both filters and orderers can't be empty";
     }
-    return res;
-};
+}
 
-exports.Query = Query;
+function RangeQuery(from, count, parent) {
+    this.from = from;
+    this.count = count;
+    this.parent = parent;
+}
+
+BasicQuery.prototype.filter = function (filter) {
+    return new this.ctors.OrdFilter([filter], [], this);
+};
+BasicQuery.prototype.orderBy = function (orderer) {
+    return new this.ctors.OrdFilter([], [orderer], this);
+};
+BasicQuery.prototype.take = function (from, count) {
+    return new this.ctors.Range(from, count, this);
+};
+BasicQuery.prototype.top = function (count) {
+    return this.take(0, count);
+};
+BasicQuery.prototype.toArray = function () {
+    return this.arr;
+};
+BasicQuery.prototype.ctors = {
+    Basic: BasicQuery,
+    Range: RangeQuery,
+    OrdFilter: OrdFilterQuery
+};
+BasicQuery.prototype.allowsArrayMutation = false;
+
+
+RangeQuery.prototype = Object.create(BasicQuery.prototype.ctors.Basic.prototype);
+RangeQuery.prototype.toArray = function () {
+    return this.parent.toArray().slice(this.from, this.from + this.count);
+};
+RangeQuery.prototype.take = function (from, count) {
+    return new this.ctors.Range(this.from + from, Math.max(this.count, count));
+};
+RangeQuery.prototype.allowsArrayMutation = true;
+
+
+OrdFilterQuery.prototype = Object.create(BasicQuery.prototype.ctors.Basic.prototype);
+OrdFilterQuery.prototype.filter = function (filter) {
+    return new this.ctors.OrdFilter(this.filters.concat(filter), this.orderers, this.parent);
+};
+OrdFilterQuery.prototype.orderBy = function (orderer) {
+    if (this.orderers.length) {
+        throw "Pointless to reorder twice in a row. Use thenBy to do a complex ordering";
+    }
+    return new this.ctors.OrdFilter(this.filters, [orderer], this.parent);
+};
+OrdFilterQuery.prototype.thenBy = function (orderer) {
+    if (!this.orderers.length) {
+        throw "Never was ordered, so can't add complex orderer. Use orderBy to begin with";
+    }
+    return new this.ctors.OrdFilter(this.filters, this.orderers.concat(orderer), this.parent);
+};
+OrdFilterQuery.prototype.toArray = function () {
+    var parentArray = this.parent.toArray();
+    if (!this.orderers.length) {
+        return filter(parentArray, this.filters);
+    }
+    if (this.filters.length) {
+        return filter(parentArray, this.filters).sort(getComparator(this.orderers));
+    }
+    return this.parent.allowsArrayMutation
+        ? parentArray.sort(getComparator(this.orderers))
+        : parentArray.slice(0).sort(getComparator(this.orderers));
+};
+OrdFilterQuery.prototype.allowsArrayMutation = true;
+
+module.exports.BasicQuery = BasicQuery;
+module.exports.OrdFilterQuery = OrdFilterQuery;
+module.exports.RangeQuery = RangeQuery;

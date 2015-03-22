@@ -1,17 +1,21 @@
+'use strict';
 module.exports = function (config) {
-    'use strict';
     config.set({
         basePath: '',
-        frameworks: ['mocha'],
+        frameworks: ['mocha', 'browserify'],
         files: [
-            'test/setup.js',
-            'test/*.spec.js'
+            'test/**/*.js'
         ],
-        reporters: ['progress'],
-        port: 9876,
-        colors: true,
+        reporters: ['mocha'],
+        preprocessors: {
+            'test/**/*.js': [ 'browserify' ]
+        },
+        browserify: {
+            debug: true,
+            transform: [ 'brfs' ]
+        },
         autoWatch: false,
-        singleRun: false,
+        singleRun: true,
         logLevel: config.LOG_INFO,
         browsers: ['PhantomJS']
     });
