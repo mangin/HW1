@@ -1,6 +1,7 @@
 'use strict';
 
 var CinemaQuery = require("./cinemaQuery").BaseCinemaQuery,
+    FilmQuery = require("./filmQuery").BaseFilmQuery,
     gen = require("random-seed").create("my best seed"),
     _ = require("lodash");
 var words = require("../poem.json");
@@ -33,6 +34,30 @@ var cinemas = _.range(cinemaCount).map(function (i) {
     };
 });
 
-exports.cinemas = function () {
-    return new CinemaQuery(cinemas);
+var films = _.range(filmCount).map(function (i) {
+    return {
+        id: i,
+        name: getName()
+    };
+});
+
+var cinemaIdIndex = _.indexBy(cinemas, "id");
+var filmIdIndex = _.indexBy(films, "id");
+
+exports.cinemas = {
+    all: function () {
+        return new CinemaQuery(cinemas);
+    },
+    byId: function (id) {
+        return cinemaIdIndex[id];
+    }
+};
+
+exports.films = {
+    all: function () {
+        return new FilmQuery(cinemas);
+    },
+    byId: function (id) {
+        return filmIdIndex[id];
+    }
 };

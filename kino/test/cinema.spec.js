@@ -83,24 +83,39 @@ describe('cinema query', function () {
     it('should sort by position and film soonness', function () {
         var pos = { lat: 0, lon: 0 };
         new BaseCinemaQuery(collection)
+            .withFilm(1, new Date(2000, 1, 3))
             .orderByNearness(pos)
             .thenBySoonest(1, new Date(2000, 1, 3))
             .toArray()
             .map(function (c) { return c.id; })
             .should
-            .eql(['cinema3', 'cinema1', 'cinema4', 'cinema2']);
+            .eql(['cinema3', 'cinema1']);
     });
-    //it('should find cinema by id', function () {
-    //    new BaseCinemaQuery({collection: collection})
-    //        .getById('cinema1').should.eql(collection[0]);
-    //});
+    it('should find cinema by id', function () {
+        provider.cinemas.byId(3).should.eql(provider.cinemas.all().toArray()[3]);
+    });
 
     describe('cinema provider', function () {
-        it('should return cinemaQuery with cinemas()', function () {
-            provider.cinemas().should.be.instanceof(BaseCinemaQuery);
+        it('should return cinemaQuery with cinemas.all()', function () {
+            provider.cinemas.all().should.be.instanceof(BaseCinemaQuery);
         });
     });
 
-
 });
 
+describe("film query", function () {
+    var BaseFilmQuery, provider;
+    before(function () {
+        BaseFilmQuery = require('../cinema/filmQuery').BaseFilmQuery;
+        provider = require('../cinema/provider');
+    });
+    describe('cinema provider', function () {
+        it('should return FilmQuery with films.all()', function () {
+            provider.films.all().should.be.instanceof(BaseFilmQuery);
+        });
+        it("should search by first film's name", function () {
+            var firstFilm = provider.films.all().toArray()[0];
+            provider.films.all().withName(firstFilm.name).toArray().should.contain(firstFilm);
+        });
+    });
+});

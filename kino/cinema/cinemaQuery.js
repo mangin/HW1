@@ -49,6 +49,13 @@ RangeCinemaQuery.prototype = Object.create(query.RangeQuery.prototype);
         OrdFilter: OrdFilterCinemaQuery,
         Range: RangeCinemaQuery
     };
+    CinemaQuery.prototype.withFilm = function (filmId, date) {
+        return this.filter(function (cinema) {
+            return cinema.timeTable.some(function (entry) {
+                return entry.filmId === filmId && entry.date >= date;
+            });
+        });
+    };
     CinemaQuery.prototype.orderByNearness = function (pos) {
         return this.orderBy(nearnessOrderer(pos));
     };
