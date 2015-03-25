@@ -36,7 +36,7 @@ function createTheater(x, y, info) {
 }
 
 // Создаёт запись в расписании кинотеатра: когда, где, и какой фмльм. При неудаче null.
-function createScheduleEntry(date, theater, film) {
+function createScheduleItem(date, theater, film) {
     "use strict";
 
     if (typeof date.getMonth !== 'function'
