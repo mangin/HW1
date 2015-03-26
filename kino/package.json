@@ -1,0 +1,45 @@
+{
+  "name": "kino",
+  "version": "1.0.0",
+  "description": "Kino.Bistro.Ya.Skazal",
+  "main": "index.js",
+  "scripts": {
+    "start": "index.js",
+    "test": "mocha",
+    "build": "grunt",
+    "grunt": "grunt",
+    "grunt-browserify": "grunt browserify",
+    "grunt-jslint": "grunt jslint",
+    "karma": "karma start"
+  },
+  "author": "a10nik",
+  "license": "ISC",
+  "devDependencies": {
+    "brfs": "^1.4.0",
+    "chai": "^2.1.2",
+    "chai-as-promised": "^4.3.0",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.5.0",
+    "grunt-cli": "^0.1.13",
+    "grunt-jslint": "^1.1.12",
+    "jasmine-core": "^2.2.0",
+    "karma": "^0.12.31",
+    "karma-browserify": "^4.0.0",
+    "karma-cli": "^0.0.4",
+    "karma-mocha": "^0.1.10",
+    "karma-mocha-reporter": "^1.0.2",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "mocha": "^2.2.1",
+    "mochify": "^2.6.1"
+  },
+  "dependencies": {
+    "es5-shim": "^4.1.0",
+    "es6-shim": "^0.27.1",
+    "express": "^4.12.2",
+    "geo-distance-safe": "^0.1.2",
+    "immutable": "^3.6.4",
+    "lodash": "^3.5.0",
+    "q": "^1.2.0",
+    "random-seed": "^0.2.0"
+  }
+}
