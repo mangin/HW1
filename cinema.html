@@ -1,0 +1,123 @@
+<script>
+/*global alert: false, confirm: false, console: false, Debug: false, opera: false, prompt: false, WSH: false */
+(function () {
+    'use strict';
+    var cinemas = [],
+        filmEvents = [],
+        cinemasData = [],
+        cinemasBase = "Салют 2 2 2 Космос 2 2 2";
+
+    function createFilmEvent(film, dateTime, cinema) {
+        return {
+            film: film,
+            dateTime: dateTime,
+            cinema: cinema
+        };
+    }
+
+    function createCinema(cinemaName, position) {
+        return {
+            cinemaName: cinemaName,
+            cinemaPosition: position
+        };
+    }
+
+    function createPosition(grad, min, sec) {
+        return {
+            grad: grad,
+            min: min,
+            sec: sec
+        };
+    }
+
+    /*function createPerson(position) {
+        return {
+            position: position
+        };
+    }*/
+
+    /*function createCurrentTime() {
+        return {
+            currentDate: new Date()
+        };
+    }*/
+
+    function readCinemas(cinemasBase) {
+        var stringArray = cinemasBase.split(" "),
+            cinemaName = "",
+            digitPattern = /\d+/,
+            len = stringArray.length,
+            i = 0,
+            cinemaChecked = false;
+        while (i < len) {
+            if (digitPattern.test(stringArray[i])) {
+                cinemas.push(createCinema(cinemaName, createPosition(stringArray[i], stringArray[i + 1], stringArray[i + 2])));
+                i += 3;
+                cinemaChecked = true;
+            } else {
+                if (cinemaChecked) {
+                    cinemaName = "";
+                }
+                cinemaName = cinemaName + stringArray[i] + " ";
+                i += 1;
+            }
+        }
+    }
+
+    function findCinemaByName(cinemaName, cinemas) {
+        var i = 0,
+            len = cinemas.length;
+        while (i < len && cinemas[i].cinemaName !== cinemaName) {
+            i += 1;
+        }
+        return cinemas[i];
+    }
+
+    function readCinemaData(infoString) {
+        var infoSectionArray = infoString.split('!'),
+            stringArray = infoSectionArray[2].split(' '),
+            arrayLength = stringArray.length,
+            cinemaName = infoSectionArray[0],
+            movieDate = infoSectionArray[1],
+            j = 0,
+            timePattern = /\d\d\:\d\d/,
+            filmName = "",
+            filmChecked = false,
+            timeString = '';
+
+        for (j = 1; j < arrayLength; j += 1) {
+            timeString = timePattern.exec(stringArray[j]);
+            if (timeString !== null) {
+                filmEvents.push(createFilmEvent(filmName, new Date(movieDate + " " + timeString), findCinemaByName(cinemaName, cinemas)));
+                filmChecked = true;
+            } else {
+                if (filmChecked) {
+                    filmName = "";
+                    filmChecked = false;
+                }
+                filmName = filmName + stringArray[j] + " ";
+            }
+        }
+    }
+
+    (function main() {
+        cinemasData[0] = 'Салют ! 26 Mar 2015 ! Мамочка 16:00 21:00 Black Comedy Shorts 12:00 15:30 Лондонский международный фестиваль "L I A F" 13:30 17:00 21:30';
+        cinemasData[1] = 'Салют ! 27 Mar 2015 ! Ночной НОН-СТОП 00:50 Дивергент, глава 2: Инсургент 3D 21:10 23:25';
+        cinemasData[2] = 'Космос ! 26 Mar 2015 ! Дом 3D 13:40 Чародей равновесия 3D 14:40 Барашек Шон 15:30';
+        cinemasData[3] = 'Космос ! 24 Mar 2015 ! Опера Летучий голландец 10:00 Барашек Шон 10:00 Счастье - это... 10:40';
+
+        readCinemas(cinemasBase);
+        cinemasData.forEach(function (sheduleString) {
+            readCinemaData(sheduleString);
+        });
+
+        filmEvents.forEach(function (eventData) {
+            console.log(eventData.film);
+            console.log(eventData.dateTime.toLocaleString());
+            console.log(eventData.cinema.cinemaName);
+            console.log(" ");
+        });
+
+    }());
+}());    
+</script>
