@@ -1,4 +1,4 @@
-HW1.
+HW1
 ===
 
 Сначала
@@ -17,4 +17,10 @@ npm test
 
 <pre>
 npm run karma
+</pre>
+
+Чтобы запустить то, что нельзя называть
+
+<pre>
+npm run grunt-jslint
 </pre>
