@@ -48,35 +48,32 @@ function Base() {
 
         movies = ['Chappie', 'Focus', 'Duxless 2',
                 'Green Planet', 'Zolushka', 'Mezhdu delom', 'Forsazh 7', 'Proklyatie'].map(function (name) {
-                return new CreateMovie(name, randActors(actors), 'about movie', {rating: Math.random() * 10});
-            }),
+            return new CreateMovie(name, randActors(actors), 'about movie', {rating: Math.random() * 10});
+        }),
 
         cinemas = ['Kosmos', 'Kolizey', 'Salut', 'Titanic Cinema', 'Rolics', 'Premier Zal'].map(function (name) {
-                return new CreateCinema(name, randTimetables(movies), {x: Math.random() * 100, y: Math.random() * 100});
-            }),
+            return new CreateCinema(name, randTimetables(movies), {x: Math.random() * 100, y: Math.random() * 100});
+        }),
 
         user = new CreateUser('Stanislav', {x: Math.random() * 100, y: Math.random() * 100});
 
     this.movies = movies;
     this.cinemas = cinemas;
     this.user = user;
-    
+
     this.filterByMovieName = function (movies, name) {
-        'use strict';
         return movies.filter(function (movie) {
             return movie.name.toLowerCase().includes(name.toLowerCase());
         });
     };
 
     this.filterMoviesByRating = function (movies, rating) {
-        'use strict';
         return movies.filter(function (movie) {
             return movie.rating >= rating;
         });
     };
 
     this.filterCinemasByMovie = function (cinemas, movie) {
-        'use strict';
         return cinemas.filter(function (cinema) {
             return cinema.timetable.some(function (session) {
                 if (session.movie.name === movie.name) {
@@ -88,7 +85,6 @@ function Base() {
     };
 
     this.sortCinemasByLocation = function (cinemas, location) {
-        'use strict';
         var map =  cinemas.map(function (cinema, i) {
             return {
                 index: i,
