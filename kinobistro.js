@@ -1,78 +1,27 @@
-function createMovie(name, actors, about, options) {
+function CreateMovie(name, actors, about, options) {
     'use strict';
-    options = options || {};
-    return {
-        name: name,
-        actors: actors,
-        about: about,
-        rating: options.rating || 0
-    };
+    this.options = options || {};
+    this.name = name;
+    this.actors = actors;
+    this.about = about;
+    this.rating = options.rating || 0;
 }
 
-function createCinema(name, timetable, location, options) {
+function CreateCinema(name, timetable, location, options) {
     'use strict';
-    options = options ||  {};
-    return {
-        name: name,
-        timetable: timetable,
-        location: location,
-        options: options
-    };
+    this.options = options ||  {};
+    this.name = name;
+    this.timetable = timetable;
+    this.location = location;
 }
 
-function createUser(name, location) {
+function CreateUser(name, location) {
     'use strict';
-    return {
-        name: name,
-        location: location
-    };
+    this.name = name;
+    this.location = location;
 }
 
-var manager = {};
-
-manager.filterCinemasByMovie = function (cinemas, movie) {
-    'use strict';
-    return cinemas.filter(function (cinema) {
-        return cinema.timetable.some(function (session) {
-            if (session.movie.name === movie.name) {
-                return true;
-            }
-            return false;
-        });
-    });
-};
-
-manager.filterMoviesByRating = function (movies, rating) {
-    'use strict';
-    return movies.filter(function (movie) {
-        return movie.rating >= rating;
-    });
-};
-
-manager.sortCinemasByLocation = function (cinemas, location) {
-    'use strict';
-    var map =  cinemas.map(function (cinema, i) {
-        return {
-            index: i,
-            value: Math.sqrt(Math.pow(cinema.location.x - location.x, 2) + Math.pow(cinema.location.y - location.y, 2))
-        };
-    });
-    map.sort(function (a, b) {
-        return a.value - b.value;
-    });
-    return map.map(function (cinema) {
-        return cinemas[cinema.index];
-    });
-};
-
-manager.filterByMovieName = function (movies, name) {
-    'use strict';
-    return movies.filter(function (movie) {
-        return movie.name.toLowerCase().includes(name.toLowerCase());
-    });
-};
-
-function baseCreation() {
+function Base() {
     'use strict';
 
     function randActors(actors) {
@@ -98,16 +47,59 @@ function baseCreation() {
             'Kianu Rivz', 'Silvestr Stalone', 'Michel Rodrigez'],
 
         movies = ['Chappie', 'Focus', 'Duxless 2',
-            'Green Planet', 'Zolushka', 'Mezhdu delom', 'Forsazh 7', 'Proklyatie'].map(function (name) {
-            return createMovie(name, randActors(actors), 'about movie', {rating: Math.random() * 10});
-        }),
+                'Green Planet', 'Zolushka', 'Mezhdu delom', 'Forsazh 7', 'Proklyatie'].map(function (name) {
+                return new CreateMovie(name, randActors(actors), 'about movie', {rating: Math.random() * 10});
+            }),
 
-        cinemas = ['Koskos', 'Kolizey', 'Salut', 'Titanic Cinema', 'Rolics', 'Premier Zal'].map(function (name) {
-            return createCinema(name, randTimetables(movies), {x: Math.random() * 100, y: Math.random() * 100});
-        }),
+        cinemas = ['Kosmos', 'Kolizey', 'Salut', 'Titanic Cinema', 'Rolics', 'Premier Zal'].map(function (name) {
+                return new CreateCinema(name, randTimetables(movies), {x: Math.random() * 100, y: Math.random() * 100});
+            }),
 
-        user = createUser('Stanislav', {x: Math.random() * 100, y: Math.random() * 100});
+        user = new CreateUser('Stanislav', {x: Math.random() * 100, y: Math.random() * 100});
 
+    this.movies = movies;
+    this.cinemas = cinemas;
+    this.user = user;
+    
+    this.filterByMovieName = function (movies, name) {
+        'use strict';
+        return movies.filter(function (movie) {
+            return movie.name.toLowerCase().includes(name.toLowerCase());
+        });
+    };
+
+    this.filterMoviesByRating = function (movies, rating) {
+        'use strict';
+        return movies.filter(function (movie) {
+            return movie.rating >= rating;
+        });
+    };
+
+    this.filterCinemasByMovie = function (cinemas, movie) {
+        'use strict';
+        return cinemas.filter(function (cinema) {
+            return cinema.timetable.some(function (session) {
+                if (session.movie.name === movie.name) {
+                    return true;
+                }
+                return false;
+            });
+        });
+    };
+
+    this.sortCinemasByLocation = function (cinemas, location) {
+        'use strict';
+        var map =  cinemas.map(function (cinema, i) {
+            return {
+                index: i,
+                value: Math.sqrt(Math.pow(cinema.location.x - location.x, 2) + Math.pow(cinema.location.y - location.y, 2))
+            };
+        });
+        map.sort(function (a, b) {
+            return a.value - b.value;
+        });
+        return map.map(function (cinema) {
+            return cinemas[cinema.index];
+        });
+    };
 }
-
-baseCreation();
