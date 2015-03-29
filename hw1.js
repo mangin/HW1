@@ -1,94 +1,83 @@
-function createCinema(name, position, options) {
+/*global console*/
+(function () {
     'use strict';
-    options = options || {};
-    return {
-        name: name,
-        position: position,
-        phone: options.phone
-    };
-}
+    function Cinema(name, position, options) {
+        options = options || {};
+        this.name = name;
+        this.position = position;
+        this.phone = options.phone;
+    }
 
-function createPosition(x, y) {
-    'use strict';
-    return {
-        x: x,
-        y: y
-    };
-}
+    function Position(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 
-function distance(position1, position2) {
-    'use strict';
-    return Math.sqrt(Math.pow(position1.x - position2.x, 2) + Math.pow(position1.y - position2.y, 2));
-}
+    function distance(position1, position2) {
+        return Math.sqrt(Math.pow(position1.x - position2.x, 2) + Math.pow(position1.y - position2.y, 2));
+    }
 
-function createFilm(name, rating, options) {
-    'use strict';
-    options = options || {};
-    return {
-        name: name,
-        rating: rating,
-        description: options.description || " "
-    };
-}
+    function Film(name, rating, options) {
+        options = options || {};
+        this.name = name;
+        this.rating = rating;
+        this.description = options.description;
+    }
 
-function createSession(film, cinema, time) {
-    'use strict';
-    return {
-        film: film,
-        cinema: cinema,
-        time: time
-    };
-}
+    function Session(film, cinema, time) {
+        this.film = film;
+        this.cinema = cinema;
+        this.time = time;
+    }
 
-var cinemas = [1, 2, 3, 4].map(function (x) {
-    'use strict';
-    return createCinema(
-        "Cinema " + x,
-        createPosition(x, 2 * x),
-        { phone: x }
-    );
-});
-
-var films = [1, 2, 3, 4, 5].map(function (x) {
-    'use strict';
-    return createFilm(
-        "Film " + x,
-        x,
-        { description: "It is film # " + x }
-    );
-});
-
-var sessions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (x) {
-    'use strict';
-    return createSession(
-        films[x % films.length],
-        cinemas[(x * x) % cinemas.length],
-        new Date(2015, 3, 20, 10 + x, 0)
-    );
-});
-
-var manager = {};
-manager.findSessionByFilmName = function (filmName) {
-    'use strict';
-    return sessions.filter(function (candidate) {
-        return candidate.film.name === filmName;
+    var cinemas, films, sessions, manager;
+    cinemas = [1, 2, 3, 4].map(function (x) {
+        return new Cinema(
+            "Cinema " + x,
+            new Position(x, 2 * x),
+            { phone: x }
+        );
     });
-};
 
-manager.sortByUserPosition = function (userPosition, film) {
-    'use strict';
-    var sessions = manager.findSessionByFilmName(film);
-    sessions.sort(function (a, b) {
-        var
-            dist1 = distance(userPosition, a.cinema.position),
-            dist2 = distance(userPosition, b.cinema.position);
-        if (dist1 < dist2) {
-            return -1;
-        }
-        if (dist1 > dist2) {
-            return 1;
-        }
-        return 0;
+    films = [1, 2, 3, 4, 5].map(function (x) {
+        return new Film(
+            "Film " + x,
+            x,
+            { description: "It is film # " + x }
+        );
     });
-    return sessions;
-};
+
+    sessions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (x) {
+        return new Session(
+            films[x % films.length],
+            cinemas[(x * x) % cinemas.length],
+            new Date(2015, 3, 20, 10 + x, 0)
+        );
+    });
+
+    manager = {};
+    manager.findSessionByFilmName = function (filmName) {
+        return sessions.filter(function (candidate) {
+            return candidate.film.name === filmName;
+        });
+    };
+
+    manager.sortByUserPosition = function (userPosition, film) {
+        var filmSessions = manager.findSessionByFilmName(film);
+        filmSessions.sort(function (a, b) {
+            var
+                dist1 = distance(userPosition, a.cinema.position),
+                dist2 = distance(userPosition, b.cinema.position);
+            if (dist1 < dist2) {
+                return -1;
+            }
+            if (dist1 > dist2) {
+                return 1;
+            }
+            return 0;
+        });
+        return filmSessions;
+    };
+
+    console.log(manager.sortByUserPosition(new Position(1, 1), "Film 1"));
+}());
