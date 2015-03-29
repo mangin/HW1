@@ -1,4 +1,4 @@
-function test() {
+(function() {
 
     function Cinema(name, position) {
         this.name = name;
@@ -29,7 +29,7 @@ function test() {
         return p;
     }
 
-    var films =[] ,
+    var films = [],
         cinemas = [],
         sessions = [];
 
@@ -56,8 +56,8 @@ function test() {
     (function () {
         var currentDate = new Date();
         var hour = currentDate.getHours();
-        for (var i=0; i < 20; i++) {
-            (function(cr) {
+        for (var i = 0; i < 20; i++) {
+            (function (cr) {
                 var date = new Date();
                 date.setTime(cr.getTime())
                 date.setHours(getRandom(hour, 72));
@@ -86,5 +86,98 @@ function test() {
             s4() + '-' + s4() + s4() + s4();
     }
 
+    function Manager(sessions){
+        this.msessions = sessions;
+        return this;
+    };
 
-}
+    function sortByDatetime(session1, session2) {
+        if (session1.datetime > session2.datetime)
+            return 1;
+        if (session1.datetime < session2.datetime)
+            return -1;
+        return 0;
+    }
+    Manager.prototype.findByFilmName = function (filmName) {
+        if( filmName === undefined)
+            return this;
+        this.msessions = this.msessions.filter(
+            function(session){
+                return (session.film.name.toLowerCase() === filmName.toLowerCase());
+            });
+        return this;
+    };
+
+    Manager.prototype.findByCinema = function (cinema) {
+        if( cinema === undefined)
+            return this;
+        this.msessions = this.msessions.filter(
+            function(session){
+                return (session.cinema.name.toLowerCase() === cinema.toLowerCase());
+            });
+        return this;
+    };
+
+    Manager.prototype.sortByDistance = function (UserLocation) {
+        function distance (cinemaPosition, UserLocation) {
+            return Math.sqrt(Math.pow(cinemaPosition.x - UserLocation.x, 2) + Math.pow(cinemaPosition.y - UserLocation.y, 2));
+        }
+        this.msessions = this.msessions.sort(function(session1, session2) {
+            if (distance(session1.cinema.position, UserLocation) > distance(session2.cinema.position, UserLocation))
+                return 1;
+            if (distance(session1.cinema.position, UserLocation) < distance(session2.cinema.position, UserLocation))
+                return -1;
+            return 0;
+        });
+        return this;
+    }
+
+    Manager.prototype.sortByTime = function () {
+        this.msessions = this.msessions.sort(sortByDatetime);
+        return this;
+    }
+
+    Manager.prototype.toArray = function () {
+        return this.msessions;
+    }
+
+    Manager.prototype.all = function () {
+        return this.toArray();
+    }
+
+    var btnSearch = document.getElementById("search");
+    btnSearch.onclick = function()
+    {
+        var inputFilmName = document.getElementById("inFilmName");
+        var inputCinemaName = document.getElementById("inCinemaName");
+        console.log(inputFilmName.value);
+        var results = (new Manager(sessions))
+            .findByFilmName(inputFilmName.value)
+            .findByCinema(inputCinemaName.value)
+            .sortByTime()
+            .toArray();
+        console.log(results);
+        var div = document.getElementById("results");
+        while (div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+        for(var i in results)
+        {
+            var session = results[i];
+            if(session) {
+                console.log(session.film.name);
+
+                var p = document.createElement("p");
+                p.textContent = session.film.name + " | " + session.cinema.name + " | " + format_date(session.datetime);
+                div.appendChild(p);
+            }
+        }
+    }
+
+    function format_date(date)
+    {
+        var time = ('0' + date.getHours()).slice(-2)+':'+('0' + date.getMinutes()).slice(-2);
+        return time + ' ' + ('0' + date.getDate()).slice(-2) + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + date.getFullYear();
+    }
+
+}());
