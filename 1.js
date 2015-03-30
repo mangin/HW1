@@ -1,5 +1,6 @@
-(function() {
-
+/*global console, document*/
+(function () {
+    'use strict';
     function Cinema(name, position) {
         this.name = name;
         this.position = position;
@@ -41,7 +42,7 @@
 
     console.log('cinemas');
     cinemas.forEach(function (el) {
-        console.log(el)
+        console.log(el);
     });
     films.push(new Film('Transformers7', ['action'], 123));
     films.push(new Film('Star Wars', ['action', 'fantastic'], 130));
@@ -54,19 +55,18 @@
     }
 
     (function () {
-        var currentDate = new Date();
-        var hour = currentDate.getHours();
-        for (var i = 0; i < 20; i++) {
-            (function (cr) {
-                var date = new Date();
-                date.setTime(cr.getTime())
-                date.setHours(getRandom(hour, 72));
-                //console.log(date);
-                sessions.push(new Session(films[getRandom(0, films.length - 1)], date, cinemas[getRandom(0, cinemas.length - 1)], getRandom(150, 330)));
-            }(currentDate));
+        var currentDate = new Date(),
+            date = new Date(),
+            hour = currentDate.getHours(),
+            i;
+        for (i = 0; i < 20; i = i + 1) {
+            date.setTime(currentDate.getTime());
+            date.setHours(getRandom(hour, 72));
+            //console.log(date);
+            sessions.push(new Session(films[getRandom(0, films.length - 1)], date, cinemas[getRandom(0, cinemas.length - 1)], getRandom(150, 330)));
         }
 
-    })();
+    }());
 
     console.log('sessions');
     sessions.forEach(
@@ -86,97 +86,119 @@
             s4() + '-' + s4() + s4() + s4();
     }
 
-    function Manager(sessions){
+    function Manager(sessions) {
         this.msessions = sessions;
         return this;
-    };
+    }
 
     function sortByDatetime(session1, session2) {
-        if (session1.datetime > session2.datetime)
+        if (session1.datetime > session2.datetime) {
             return 1;
-        if (session1.datetime < session2.datetime)
+        }
+        if (session1.datetime < session2.datetime) {
             return -1;
+        }
         return 0;
     }
     Manager.prototype.findByFilmName = function (filmName) {
-        if( filmName === undefined)
+        if (filmName === '' || filmName === undefined) {
             return this;
+        }
         this.msessions = this.msessions.filter(
-            function(session){
+            function (session) {
                 return (session.film.name.toLowerCase() === filmName.toLowerCase());
-            });
+            }
+        );
         return this;
     };
 
     Manager.prototype.findByCinema = function (cinema) {
-        if( cinema === undefined)
+        if (cinema === '' || cinema === undefined) {
             return this;
+        }
         this.msessions = this.msessions.filter(
-            function(session){
+            function (session) {
                 return (session.cinema.name.toLowerCase() === cinema.toLowerCase());
-            });
+            }
+        );
         return this;
     };
 
     Manager.prototype.sortByDistance = function (UserLocation) {
-        function distance (cinemaPosition, UserLocation) {
+        function distance(cinemaPosition, UserLocation) {
             return Math.sqrt(Math.pow(cinemaPosition.x - UserLocation.x, 2) + Math.pow(cinemaPosition.y - UserLocation.y, 2));
         }
-        this.msessions = this.msessions.sort(function(session1, session2) {
-            if (distance(session1.cinema.position, UserLocation) > distance(session2.cinema.position, UserLocation))
+        this.msessions = this.msessions.sort(function (session1, session2) {
+            if (distance(session1.cinema.position, UserLocation) > distance(session2.cinema.position, UserLocation)) {
                 return 1;
-            if (distance(session1.cinema.position, UserLocation) < distance(session2.cinema.position, UserLocation))
+            }
+            if (distance(session1.cinema.position, UserLocation) < distance(session2.cinema.position, UserLocation)) {
                 return -1;
+            }
             return 0;
         });
         return this;
-    }
+    };
 
     Manager.prototype.sortByTime = function () {
         this.msessions = this.msessions.sort(sortByDatetime);
         return this;
-    }
+    };
 
     Manager.prototype.toArray = function () {
         return this.msessions;
-    }
+    };
 
     Manager.prototype.all = function () {
         return this.toArray();
-    }
+    };
 
-    var btnSearch = document.getElementById("search");
-    btnSearch.onclick = function()
-    {
-        var inputFilmName = document.getElementById("inFilmName");
-        var inputCinemaName = document.getElementById("inCinemaName");
+    var btnSearch = document.getElementById("search"),
+        user = point(10, 10);
+    btnSearch.onclick = search;
+    document.getElementById("inFilmName").onkeydown = function (e) {
+        if (e.keyCode === 13) {
+            search();
+        }
+    };
+    document.getElementById("inCinemaName").onkeydown = function (e) {
+        if (e.keyCode === 13) {
+            search();
+        }
+    };
+    function search() {
+        var inputFilmName = document.getElementById("inFilmName"),
+            inputCinemaName = document.getElementById("inCinemaName"),
+            results,
+            div,
+            i,
+            session,
+            p;
+        results = (new Manager(sessions))
+                .findByFilmName(inputFilmName.value)
+                .findByCinema(inputCinemaName.value)
+                .sortByTime()
+                .sortByDistance(user)
+                .toArray();
         console.log(inputFilmName.value);
-        var results = (new Manager(sessions))
-            .findByFilmName(inputFilmName.value)
-            .findByCinema(inputCinemaName.value)
-            .sortByTime()
-            .toArray();
         console.log(results);
-        var div = document.getElementById("results");
+        div = document.getElementById("results");
         while (div.firstChild) {
             div.removeChild(div.firstChild);
         }
-        for(var i in results)
-        {
-            var session = results[i];
-            if(session) {
+        for (i = 0; i < results.length; i = i + 1) {
+            session = results[i];
+            if (session) {
                 console.log(session.film.name);
-
-                var p = document.createElement("p");
+                p = document.createElement("p");
                 p.textContent = session.film.name + " | " + session.cinema.name + " | " + format_date(session.datetime);
                 div.appendChild(p);
             }
         }
     }
 
-    function format_date(date)
-    {
-        var time = ('0' + date.getHours()).slice(-2)+':'+('0' + date.getMinutes()).slice(-2);
+    function format_date(date) {
+        var time = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
         return time + ' ' + ('0' + date.getDate()).slice(-2) + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + date.getFullYear();
     }
 
