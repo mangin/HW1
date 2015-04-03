@@ -1,4 +1,6 @@
 // Менеджер расписания
+//  Позволяет производить выборку и сортировку расписания
+//  Результат работы сохраняет в поле schedule
 function createScheduleManager(schedule) {
     "use strict";
     var manager = {schedule: schedule};
@@ -35,6 +37,7 @@ function createScheduleManager(schedule) {
         return this;
     };
 
+    // Сортировака по времени
     manager.sortByTime = function () {
         schedule = schedule.sort(function (a, b) {
             return a.date.value - b.date.value;
@@ -42,6 +45,7 @@ function createScheduleManager(schedule) {
         return this;
     };
 
+    // Сортировка по удалённости от (x, y)
     manager.sortByDistance = function (x, y) {
         schedule = schedule.sort(function (a, b) {
             return Math.pow((Math.pow((x - a.theater.x), 2) + Math.pow(y - a.theater.y)), 0.5) -
