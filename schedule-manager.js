@@ -35,6 +35,21 @@ function createScheduleManager(schedule) {
         return this;
     };
 
+    manager.sortByTime = function () {
+        schedule = schedule.sort(function (a, b) {
+            return a.date.value - b.date.value;
+        });
+        return this;
+    };
+
+    manager.sortByDistance = function (x, y) {
+        schedule = schedule.sort(function (a, b) {
+            return Math.pow((Math.pow((x - a.theater.x), 2) + Math.pow(y - a.theater.y)), 0.5) -
+                Math.pow((Math.pow((x - b.theater.x), 2) + Math.pow(y - b.theater.y)), 0.5);
+        });
+        return this;
+    };
+
     return manager;
 }
 
