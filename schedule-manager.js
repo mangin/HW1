@@ -38,6 +38,11 @@ function createScheduleManager(schedule) {
     return manager;
 }
 
-//// Пример использования:
-//manager = createScheduleManager(schedule);
-//manager.
+// Пример использования:
+/*global schedule, films, theaters*/
+var filteredSchedule =
+    createScheduleManager(schedule)
+    .filterFilms([films[0], films[2]])
+    .filterTheaters([theaters[1]])
+    .filterTime(Date(0), Date(2014, 4, 3))
+    .schedule;
