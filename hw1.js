@@ -13,9 +13,9 @@
         this.y = y;
     }
 
-    function distance(position1, position2) {
-        return Math.sqrt(Math.pow(position1.x - position2.x, 2) + Math.pow(position1.y - position2.y, 2));
-    }
+    Position.prototype.distanceTo = function (position2) {
+        return Math.sqrt(Math.pow(this.x - position2.x, 2) + Math.pow(this.y - position2.y, 2));
+    };
 
     function Film(name, rating, options) {
         options = options || {};
@@ -66,8 +66,8 @@
         var filmSessions = manager.findSessionByFilmName(film);
         filmSessions.sort(function (a, b) {
             var
-                dist1 = distance(userPosition, a.cinema.position),
-                dist2 = distance(userPosition, b.cinema.position);
+                dist1 = userPosition.distanceTo(a.cinema.position),
+                dist2 = userPosition.distanceTo(b.cinema.position);
             if (dist1 < dist2) {
                 return -1;
             }
