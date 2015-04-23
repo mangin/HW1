@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Cinemas</title>
+    <style type="text/css">
+        span {
+            display: block;
+            margin: 0.3em 0;
+            font: 1em Arial;
+        }
+        button {
+            padding: 0.5rem 0.7rem;
+            margin: 0.5rem 0;
+            font: 0.9em Arial;
+            border: 1px solid #017bff;
+            background: #017bff;
+            border-radius: 3px;
+            color: #ffffff;
+            cursor: pointer;
+            outline: none;
+        }
+        #result {
+            display: block;
+            margin: 0.6em 0;
+            font: 1em Arial;
+        }
+    </style>
+    <script type="text/javascript" src="cinemas.js"></script>
+</head>
+<body>
+    <div>
+        <span><input type="radio" name="films" value="Focus" checked /> Focus</span>
+        <span><input type="radio" name="films" value="Chappie" /> Chappie</span>
+        <span><input type="radio" name="films" value="Big_Eyes" /> Big Eyes</span>
+        <span><input type="radio" name="films" value="Cinderella" /> Cinderella</span>
+        <span><input type="radio" name="films" value="The_Book_of_Life" /> The Book of Life</span>
+        <span><input type="radio" name="films" value="The_Theory_of_Everything" /> The Theory of Everything</span>
+    </div>
+    <button onclick="main()">Find Cinema Near</button>
+    <span id="result"></span>
+</body>
+</html>
