@@ -3,70 +3,61 @@
 function main() {
     'use strict';
 
-    var filmId = 0,
-        cinemaId = 0,
-        userId = 0,
-        Films,
-        Cinemas,
-        User,
-        manager = {},
-        foundedCinema,
-        wishedFilm;
-
-    /* Создание фильма */
-    function createFilm(name, options) {
-        filmId += 1;
-        options = options || {};
-        return {
-            id: filmId,
-            name: name,
-            options: options
-        };
-    }
-
-    /* Создание кинотеатра */
-    function createCinema(name, position, films, options) {
-        cinemaId += 1;
-        options = options || {};
-        return {
-            id: cinemaId,
-            name: name,
-            position: position,
-            films: films,
-            options: options,
-            hasFilm: function (idF) {
-                var film;
-                for (film in films) {
-                    if (films.hasOwnProperty(film) && films[film] === idF) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
-    }
-
-    /* Создание пользователя */
-    function createUser(name, position, options) {
-        userId += 1;
-        options = options || {};
-        return {
-            id: userId,
-            name: name,
-            position: position,
-            options: options
-        };
-    }
-
-    /* Возвращает объект с таким именем */
-    manager.getByName = function (name) {
+    Array.prototype.getByName = function (name) {
         var element;
+
+        if (this === null) {
+            throw new TypeError('Array.prototype.getByName called on null or undefined');
+        }
+
         for (element in this) {
             if (this.hasOwnProperty(element) && this[element].name === name) {
                 return this[element];
             }
         }
     };
+
+    var filmId = 0,
+        cinemaId = 0,
+        userId = 0,
+        Films,
+        Cinemas,
+        Users,
+        foundedCinema,
+        wishedFilm;
+
+    /* Создание фильма */
+    function Film(name, options) {
+        filmId += 1;
+        this.id = filmId;
+        this.name = name;
+        this.options = options || {};
+    }
+
+    /* Создание кинотеатра */
+    function Cinema(name, position, films, options) {
+        cinemaId += 1;
+        this.id = cinemaId;
+        this.name = name;
+        this.position = position;
+        this.films = films;
+        this.options = options || {};
+        this.hasFilm = function (filmId) {
+            return this.films.some(function (element) {
+                return element === filmId;
+            });
+        };
+    }
+
+    /* Создание пользователя */
+    function User(name, position, options) {
+        userId += 1;
+        options = options || {};
+        this.id = userId;
+        this.name = name;
+        this.position = position;
+        this.options = options || {};
+    }
 
     /* Наполнение базы */
     function creations() {
@@ -80,9 +71,8 @@ function main() {
             }
         }
         Films = helps.map(function (name) {
-            return createFilm(name);
+            return new Film(name);
         });
-        Films.getByName = manager.getByName;
 
         helps = [
             {
@@ -126,28 +116,34 @@ function main() {
             }
         ];
         Cinemas = helps.map(function (cinema) {
-            return createCinema(cinema.name, cinema.position, cinema.films);
+            return new Cinema(cinema.name, cinema.position, cinema.films);
         });
-        Cinemas.getByName = manager.getByName;
 
-        User = createUser("Ekaterina", {
+        Users = new User("Ekaterina", {
             x: 56.840437,
             y: 60.616122
         });
-        User.getByName = manager.getByName;
     }
 
     creations();
 
     /* Сортировка кинотеатров по близости к пользователю */
-    User.sortCinemasByPosition = function () {
+    Users.sortCinemasByPosition = function () {
         var sorted = Cinemas,
+            xA,
+            yA,
+            xB,
+            yB,
             distanceA,
             distanceB;
         sorted.sort((function (user) {
             return function (a, b) {
-                distanceA = Math.sqrt((a.position.x - user.position.x) * (a.position.x - user.position.x)) + (a.position.y - user.position.y) * (a.position.y - user.position.y);
-                distanceB = Math.sqrt((b.position.x - user.position.x) * (b.position.x - user.position.x)) + (b.position.y - user.position.y) * (b.position.y - user.position.y);
+                xA = a.position.x - user.position.x;
+                yA = a.position.y - user.position.y;
+                xB = b.position.x - user.position.x;
+                yB = b.position.y - user.position.y;
+                distanceA = Math.sqrt(xA * xA + yA * yA);
+                distanceB = Math.sqrt(xB * xB + yB * yB);
                 if (distanceA < distanceB) {
                     return -1;
                 }
@@ -160,39 +156,21 @@ function main() {
         return sorted;
     };
 
-    /* Возвращает ближайший к пользователю кинотеатр */
-    User.getClosestCinema = function () {
-        var cinema,
-            closest,
-            distance,
-            min = Number.MAX_VALUE;
-        for (cinema in Cinemas) {
-            if (Cinemas.hasOwnProperty(cinema)) {
-                distance = Math.sqrt((cinema.position.x - this.position.x) * (cinema.position.x - this.position.x)) + (cinema.position.y - this.position.y) * (cinema.position.y - this.position.y);
-                if (distance < min) {
-                    min = distance;
-                    closest = cinema;
-                }
-            }
-        }
-        return closest;
-    };
-
     /* Возвращает ближайший к пользователю кинотеатр, в котором идет фильм с таким именем */
-    User.getClosestCinemaWithWishedFilm = function (name) {
+    Users.getClosestCinemaWithWishedFilm = function (name) {
         var film = Films.getByName(name),
             sortedCinemas = this.sortCinemasByPosition(),
-            i;
-        for (i = 0; i < sortedCinemas.length; i += 1) {
-            if (sortedCinemas[i].hasFilm(film.id)) {
-                return sortedCinemas[i];
-            }
+            filteredCinemas = sortedCinemas.filter(function (element) {
+                return element.hasFilm(film.id);
+            });
+        if (filteredCinemas.length > 0) {
+            return filteredCinemas[0];
         }
         return false;
     };
 
 
-    foundedCinema = User.getClosestCinemaWithWishedFilm(wishedFilm);
+    foundedCinema = Users.getClosestCinemaWithWishedFilm(wishedFilm);
     if (foundedCinema.name) {
         document.getElementById('result').innerHTML = "If you want to see \"" + wishedFilm + "\" film, you should go to \"" + foundedCinema.name + "\" cinema.";
     } else {
