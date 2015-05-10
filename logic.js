@@ -4,32 +4,28 @@ var manager = {};
 
 (function () {
     'use strict';
-    var filter = {};
+    var filter;
 
     function CinemasForMovie(movieId, cinemaSchedules) {
         this.movieId = movieId;
         this.cinemaSchedules = cinemaSchedules;
     }
 
-    CinemasForMovie.prototype = filter;
+    filter = CinemasForMovie.prototype;
 
     manager.findByFilmName = function (movieName) {
         var movieId, key, i = 0, cinemaSchedules = [], result;
-        for (key in schema.movies) {
-            if (schema.movies.hasOwnProperty(key)) {
-                if (schema.movies[key].name === movieName) {
-                    movieId = key;
-                }
+        for (key in Object.keys(schema.movies)) {
+            if (schema.movies[key].name === movieName) {
+                movieId = key;
             }
         }
         if (!movieId) {
-            throw "Film not found";
+            return null;
         }
-        for (key in schema.links[movieId]) {
-            if (schema.links[movieId].hasOwnProperty(key)) {
-                cinemaSchedules[i] = {cinemaId: key,  schedule: schema.links[movieId][key]};
-                i = i + 1;
-            }
+        for (key in Object.keys(schema.links[movieId])) {
+            cinemaSchedules[i] = {cinemaId: key, schedule: schema.links[movieId][key]};
+            i = i + 1;
         }
         result = new CinemasForMovie(movieId, cinemaSchedules);
         return result;
@@ -42,8 +38,11 @@ var manager = {};
     filter.sortByUserPosition = function (userPosition) {
         return new CinemasForMovie(this.movieId, this.cinemaSchedules.sort(
             function (a, b) {
-                var aModule = getSquaredModule(userPosition.x, schema.cinemas[a.cinemaId].position.x, userPosition.y, schema.cinemas[a.cinemaId].position.y),
-                    bModule = getSquaredModule(userPosition.x, schema.cinemas[b.cinemaId].position.x, userPosition.y, schema.cinemas[b.cinemaId].position.y);
+                var x = userPosition.x,
+                    y = userPosition.y,
+                    li = schema.cinemas,
+                    aModule = getSquaredModule(x, li[a.cinemaId].position.x, y, li[a.cinemaId].position.y),
+                    bModule = getSquaredModule(x, li[b.cinemaId].position.x, y, li[b.cinemaId].position.y);
                 if (aModule < bModule) {
                     return -1;
                 }
@@ -60,15 +59,12 @@ var manager = {};
     };
 
     filter.toString = function () {
-        var result = schema.movies[this.movieId].name,
-            i,
-            cinemaSchedule,
-            cinemaId;
-        for (i = 0; i < this.cinemaSchedules.length; i = i + 1) {
-            cinemaSchedule = this.cinemaSchedules[i];
-            cinemaId = cinemaSchedule.cinemaId;
-            result += "\r\nCinemaId: " + cinemaId + ", position x:" + schema.cinemas[cinemaId].position.x + " y:" + schema.cinemas[cinemaId].position.y + ", schedule: " + cinemaSchedule.schedule;
-        }
+        var result = schema.movies[this.movieId].name + '\r\n',
+            mapped = this.cinemaSchedules.map(function (cinemaSchedule) {
+                var cinemaId = cinemaSchedule.cinemaId;
+                return "CinemaId: " + cinemaId + ", position x:" + schema.cinemas[cinemaId].position.x + " y:" + schema.cinemas[cinemaId].position.y + ", schedule: " + cinemaSchedule.schedule;
+            });
+        result += mapped.join('\r\n');       
         return result;
     };
 }());
